@@ -13,7 +13,7 @@ Uploaded images are processed in memory and never saved.
 ## Get the free Gemini key
 1. Go to https://aistudio.google.com and sign in with a Google account.
 2. Click "Get API key" then "Create API key".
-3. Paste it into `.env` as `GEMINI_API_KEY=...`. Free-tier limits and model names change, so check AI Studio. If `gemini-2.5-flash` stops working, set `GEMINI_MODEL` in `.env`.
+3. Paste it into `.env` as `GEMINI_API_KEY=...`. Model names and free-tier limits change often (the old `gemini-2.5-flash` was due to shut down in October 2026). Default is `gemini-3.6-flash`. If you get HTTP 404, run `python tests/list_models.py` and set `GEMINI_MODEL` in `.env` (or in Streamlit Secrets). Free daily request limits for newer Flash models may be low (reports range from about 20 to 1,500 per day), so check AI Studio's rate-limit page and use Demo mode when you run out.
 
 ## Run
 - `streamlit run app.py`, then use the tabs Scan, Review, Plan, Caregiver.

@@ -10,6 +10,7 @@ import io
 import json
 import os
 import re
+import time
 
 import requests
 
@@ -19,7 +20,11 @@ try:                       # optional: lets you keep GEMINI_API_KEY in a .env fi
 except ImportError:
     pass
 
-GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+# Google retires model names often (the old default gemini-2.5-flash was scheduled to shut down in Oct 2026).
+# If you get "HTTP 404", run  python tests/list_models.py  and set GEMINI_MODEL to a name it prints.
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.6-flash")
+# Backup models, tried in order if the main one is overloaded (503) or out of quota (429). Comma separated.
+GEMINI_FALLBACKS = [m.strip() for m in os.environ.get("GEMINI_FALLBACK_MODELS", "gemini-3.1-flash-lite").split(",") if m.strip()]
 
 PROMPT = """You are reading a photo of a doctor's prescription.
 Return ONLY valid JSON, with no other text and no markdown, in exactly this shape:
@@ -45,20 +50,9 @@ class ReaderError(Exception):
 
 # ---------- Plan A: vision LLM ----------
 
-def call_vision_llm(image_bytes, mime_type):
-    """THE ONE FUNCTION TO CHANGE if you swap providers. Returns the model's raw text."""
-    key = os.environ.get("GEMINI_API_KEY")
-    if not key:
-        raise ReaderError("no_key", "No Gemini API key found. Set the GEMINI_API_KEY environment variable "
-                                    "(see README), or use Demo mode.")
-    url = "https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent" % GEMINI_MODEL
-    body = {
-        "contents": [{"parts": [
-            {"text": PROMPT},
-            {"inline_data": {"mime_type": mime_type or "image/jpeg",
-                             "data": base64.b64encode(image_bytes).decode()}}]}],
-        "generationConfig": {"temperature": 0, "responseMimeType": "application/json"},
-    }
+def _call_gemini(model, key, body):
+    """One request to one model. Returns text or raises ReaderError."""
+    url = "https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent" % model
     try:
         r = requests.post(url, headers={"x-goog-api-key": key}, json=body, timeout=40)
     except requests.RequestException:
@@ -67,12 +61,48 @@ def call_vision_llm(image_bytes, mime_type):
         raise ReaderError("rate_limit", "Gemini free-tier limit reached (429). Wait a minute and try again.")
     if r.status_code in (400, 403) and "API key" in r.text:
         raise ReaderError("bad_key", "Gemini rejected the API key. Check GEMINI_API_KEY.")
+    if r.status_code == 404:
+        raise ReaderError("bad_model", "Gemini model '%s' was not found (it may have been retired). "
+                                       "Run python tests/list_models.py and set GEMINI_MODEL." % model)
+    if r.status_code in (500, 502, 503, 504):
+        raise ReaderError("busy", "Gemini is overloaded right now (HTTP %d). This is temporary: try again in a minute." % r.status_code)
     if r.status_code != 200:
         raise ReaderError("api_error", "Gemini returned an error (HTTP %d)." % r.status_code)
     try:
         return r.json()["candidates"][0]["content"]["parts"][0]["text"]
     except (KeyError, IndexError, ValueError):
         raise ReaderError("bad_response", "Gemini sent an answer we could not understand.")
+
+
+def call_vision_llm(image_bytes, mime_type):
+    """THE ONE FUNCTION TO CHANGE if you swap providers. Returns the model's raw text.
+    Retries a busy server twice, then tries the backup models."""
+    key = os.environ.get("GEMINI_API_KEY")
+    if not key:
+        raise ReaderError("no_key", "No Gemini API key found. Set the GEMINI_API_KEY environment variable "
+                                    "(see README), or use Demo mode.")
+    body = {
+        "contents": [{"parts": [
+            {"text": PROMPT},
+            {"inline_data": {"mime_type": mime_type or "image/jpeg",
+                             "data": base64.b64encode(image_bytes).decode()}}]}],
+        "generationConfig": {"temperature": 0, "responseMimeType": "application/json"},
+    }
+    errors = []
+    for model in [GEMINI_MODEL] + [m for m in GEMINI_FALLBACKS if m != GEMINI_MODEL]:
+        for attempt in range(3):                       # 1 try + 2 retries, only for "busy"
+            try:
+                return _call_gemini(model, key, body)
+            except ReaderError as err:
+                if err.kind == "busy" and attempt < 2:
+                    time.sleep(1.5 * (attempt + 1))
+                    continue
+                errors.append(err)
+                break
+        if errors[-1].kind in ("no_key", "bad_key", "network"):
+            break                                      # another model will not fix these
+    # Show the most useful error: prefer one that is not just "model not found" on a backup model
+    raise next((e for e in errors if e.kind != "bad_model"), errors[0])
 
 
 def parse_llm_json(text):
