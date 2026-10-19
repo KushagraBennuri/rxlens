@@ -1,0 +1,15 @@
+id,name,substitute0,use0,use1,sideEffect0,sideEffect1,Habit Forming,Therapeutic Class
+1,Dolo 650 Tablet,Crocin 650 Tablet,Treatment of fever,Treatment of mild to moderate pain,Nausea,Allergic skin reactions,No,PAIN RELIEF
+2,Crocin 500 Tablet,Dolo 500 Tablet,Treatment of fever,Treatment of mild pain,Nausea,,No,PAIN RELIEF
+3,Augmentin 625 Duo Tablet,Moxikind-CV 625 Tablet,Treatment of bacterial infections,,Vomiting,Diarrhoea,No,ANTI INFECTIVES
+4,Azithral 500 Tablet,Azee 500 Tablet,Treatment of bacterial infections,,Nausea,Diarrhoea,No,ANTI INFECTIVES
+5,Pantop 40 Tablet,Pan 40 Tablet,Treatment of acidity and heartburn,Treatment of stomach ulcers,Headache,Diarrhoea,No,GASTRO INTESTINAL
+6,Omez 20 Capsule,Omee 20 Capsule,Treatment of acidity and heartburn,,Headache,Stomach pain,No,GASTRO INTESTINAL
+7,Glycomet 500 Tablet,Gluformin 500 Tablet,Treatment of type 2 diabetes,,Nausea,Diarrhoea,No,ANTI DIABETIC
+8,Amlong 5 Tablet,Amlokind 5 Tablet,Treatment of high blood pressure,,Swelling of feet,Headache,No,CARDIAC
+9,Telma 40 Tablet,Telsartan 40 Tablet,Treatment of high blood pressure,,Dizziness,Back pain,No,CARDIAC
+10,Allegra 120mg Tablet,Fexova 120mg Tablet,Treatment of allergic conditions,,Headache,Drowsiness,No,RESPIRATORY
+11,Combiflam Tablet,Ibugesic Plus Tablet,Treatment of pain,Treatment of fever,Stomach upset,Nausea,No,PAIN RELIEF
+12,Ecosprin 75 Tablet,Aspirin 75 Tablet,Prevention of blood clots,,Stomach upset,Bleeding,No,CARDIAC
+13,Shelcal 500 Tablet,Calcimax 500 Tablet,Calcium supplement,,Constipation,,No,VITAMINS
+14,Alprax 0.25 Tablet,Restyl 0.25 Tablet,Treatment of anxiety,,Drowsiness,Dizziness,Yes,NEURO CNS

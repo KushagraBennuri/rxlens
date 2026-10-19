@@ -1,0 +1,77 @@
+{
+  "sample1.png": {
+    "medicines": [
+      {
+        "name": "Dolo 650",
+        "dose": "650 mg",
+        "frequency": "1-0-1 after food",
+        "duration": "5 days",
+        "confidence": 0.95
+      },
+      {
+        "name": "Omez",
+        "dose": "20 mg",
+        "frequency": "1-0-0 before food",
+        "duration": "7 days",
+        "confidence": 0.9
+      }
+    ]
+  },
+  "sample2.png": {
+    "medicines": [
+      {
+        "name": "Augmentn 625",
+        "dose": "625 mg",
+        "frequency": "BD after food",
+        "duration": "5 days",
+        "confidence": 0.7
+      },
+      {
+        "name": "Pantop 40",
+        "dose": "40 mg",
+        "frequency": "OD before food",
+        "duration": "10 days",
+        "confidence": 0.9
+      },
+      {
+        "name": "Allegr",
+        "dose": "120 mg",
+        "frequency": "HS",
+        "duration": "5 days",
+        "confidence": 0.5
+      }
+    ]
+  },
+  "sample3.png": {
+    "medicines": [
+      {
+        "name": "Glycomet 500",
+        "dose": "500 mg",
+        "frequency": "1-0-1 after food",
+        "duration": "30 days",
+        "confidence": 0.95
+      },
+      {
+        "name": "Telma 40",
+        "dose": "40 mg",
+        "frequency": "OD",
+        "duration": "30 days",
+        "confidence": 0.9
+      },
+      {
+        "name": "Ecosprin 75",
+        "dose": "75 mg",
+        "frequency": "OD after food",
+        "duration": "30 days",
+        "confidence": 0.9
+      },
+      {
+        "name": "Azithral 500",
+        "dose": "500 mg",
+        "frequency": "OD after food",
+        "duration": "3 days",
+        "confidence": 0.85
+      }
+    ]
+  }
+}
