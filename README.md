@@ -3,33 +3,6 @@
 Informational only, not medical advice. Use dummy or sample prescriptions only.
 Uploaded images are processed in memory and never saved.
 
-## Setup in 5 steps
-1. Install Python 3.10+.
-2. `pip install -r requirements.txt`  (optional offline OCR fallback: `pip install -r requirements-ocr.txt`)
-3. Put your medicine CSV at `data/medicines.csv` (`.csv.gz` also works). Until you do, the app uses a 14-row SAMPLE file for testing only.
-4. Copy `.env.example` to `.env` and paste your Gemini key (next section).
-5. `streamlit run app.py`  (first start loads the CSV into SQLite; this takes a while for 2.5 lakh rows, then it is instant).
-
-## Get the free Gemini key
-1. Go to https://aistudio.google.com and sign in with a Google account.
-2. Click "Get API key" then "Create API key".
-3. Paste it into `.env` as `GEMINI_API_KEY=...`. Free-tier limits and model names change, so check AI Studio. If `gemini-2.5-flash` stops working, set `GEMINI_MODEL` in `.env`.
-
-## Run
-- `streamlit run app.py`, then use the tabs Scan, Review, Plan, Caregiver.
-- Tick "Demo mode" in the sidebar to use cached results with no internet or API key.
-- Tests: `python tests/run_tests.py` (or `python -m pytest`).
-
-## Evaluate (the real accuracy number for the slide)
-1. Put your test images in `samples/` and list the correct medicine names in `samples/answers.json`. The 3 included images are dummy PRINTED text. Add handwritten dummy prescriptions for a fair number.
-2. `python tests/evaluate.py`  (calls Gemini, waits 7 s between images for the free-tier limit).
-3. Read "Name accuracy, verified". `--save-cache` stores the real model output as the new demo cache. Do not quote `--demo` numbers.
-
-## Deploy free
-**Streamlit Community Cloud (easiest):** push this folder to GitHub, create an app at share.streamlit.io pointing to `app.py`, and add `GEMINI_API_KEY` under Advanced settings > Secrets. Do not install EasyOCR there (too big); the app skips the fallback politely.
-**Render:** new Web Service, build `pip install -r requirements.txt`, start `streamlit run app.py --server.port $PORT --server.address 0.0.0.0`, add `GEMINI_API_KEY` as an environment variable. The free plan sleeps when idle.
-**Big dataset:** GitHub files over 100 MB are rejected. Keep only the useful columns, gzip it (`medicines.csv.gz`), or use Git LFS. The database is rebuilt on each fresh deploy.
-
 ## How the code is organised
 `app.py` UI, `reader.py` Gemini call (`call_vision_llm` is the one function to swap) + EasyOCR fallback, `matcher.py` fuzzy match + confidence, `schedule.py` frequency parsing + timetable + .ics, `db.py` CSV to SQLite + lookup. Dataset columns are found by name pattern (e.g. `use0..use4`, `sideEffect0..41`, `Habit Forming`); missing ones show "Ask your doctor or pharmacist".
 
